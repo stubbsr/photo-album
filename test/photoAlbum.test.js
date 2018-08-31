@@ -3,7 +3,7 @@ const request = require('request')
 const Chance = require('chance')
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai')
-const { photoAlbum } = require('../lib/photoAlbum')
+const { photoAlbum } = require('../lib/src/photoAlbum')
 
 const BASE_URL = 'https://jsonplaceholder.typicode.com/photos?albumId=3'
 

@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha",
     "build": "babel ./ --out-dir lib --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
-    "start": "npm run build && node lib/App.js"
+    "start": "node lib/App.js"
   },
   "repository": {
     "type": "git",
