@@ -1,46 +1,94 @@
 const chai = require('chai');
-const chaiFetchMock = require('chai-fetch-mock');
-const fetchMock = require('fetch-mock');
-require('isomorphic-fetch');
-const Chance = require('chance');
-const photoAlbum = require('../lib/photoAlbum').photoAlbum;
+const request = require('request')
+const Chance = require('chance')
+const sinon = require('sinon');
+const sinonChai = require('sinon-chai')
+const { photoAlbum } = require('../lib/photoAlbum')
 
-const BASE_URL = 'https://jsonplaceholder.typicode.com/photos?albumId='
+const BASE_URL = 'https://jsonplaceholder.typicode.com/photos?albumId=3'
 
 
-chai.use(chaiFetchMock)
+chai.use(sinonChai);
+chance = new Chance();
 const expect = chai.expect;
+const sandbox = sinon.createSandbox()
 
-let chance = new Chance();
+describe('photo album request working', () => {
+    let randomResponseBody;
 
-describe('test', () => {
-  before(() => fetchMock.get('*', { cats: 5 }))
- 
-  it('calls fetch', () => {
-    return fetch('/cats').then(() => {
-      expect(fetchMock).route('*').to.have.been.called;
+    beforeEach(() => {
+        sandbox.stub(request, 'get');
+        sandbox.stub(console, 'log');
+        photoAlbum(BASE_URL);
+
+        randomResponseBody = chance.n(()=> {
+            return {
+                id: chance.natural(),
+                title: chance.sentence({ words: 5 })
+            };
+        }, chance.d6());
     });
-  });
- 
-  after(() => fetchMock.restore());
+
+    afterEach(() => {
+        sandbox.restore();
+    });
+
+    it('should call the correct number of times', () => {
+        request.get.yield(null, {
+            'body': JSON.stringify(randomResponseBody)
+        });
+        expect(request.get).to.have.callCount(1);
+        expect(console.log.callCount).to.equal(randomResponseBody.length);
+    });
 });
 
-describe('photo album working', () => {
-   before(() => fetchMock.get('*', { catName: 'Taco' }))
-   photoAlbum(BASE_URL);
+describe('photo album returns the correct information', ()=> {
+    beforeEach(() => {
+        sandbox.stub(request, 'get');
+        sandbox.stub(console, 'log');
+        photoAlbum(BASE_URL);
+        randomResponseBody = chance.n(()=> {
+            return {
+                id: chance.natural(),
+                title: chance.sentence({ words: 5 })
+            };
+        }, chance.d6());
+    });
+    afterEach(() => {
+        sandbox.restore();
+    });
 
-   it('should give a response', () => {
-        expect(()=>photoAlbum).not.throw();
+    it('should return the info in the correct format', ()=> {
+        request.get.yield(null, {
+            'body': JSON.stringify(randomResponseBody)
+        });
+        for (let i = 0; i < randomResponseBody.length; i++) {
+            const photo = randomResponseBody[i];
+            expect(console.log.getCall(i).calledWith(`[id] ${photo.id}, ${photo.title}`)).to.equal(true);    
+        }
+    });    
+});
+
+
+describe('when photo album encounters error', ()=> {
+    beforeEach(() => {
+      sandbox.stub(request, 'get');
+      photoAlbum(BASE_URL); 
+      errorMsg = "whoopsies"
+      request.get.throws(errorMsg)
     });
-   it('should return a JSON object', () => {
-        expect(()=>photoAlbum.response.JSON()).to.include({ catName: 'Taco' });
-    });
-   it('should return the correct information', () => {
-      photoAlbum(BASE_URL);
-         expect(()=>photoAlbum().response.JSON().data).to.deep.include('Taco');
+    afterEach(() => {
+        sandbox.restore();
     });
 
-   after(() => fetchMock.restore());
+    it('should return error message on error', ()=>{
+        expect(request.get).to.have.callCount(1);
+        expect(request.get).to.throw(Error)
+
+    });
 
 });
-  
+
+
+
+

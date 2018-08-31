@@ -1,14 +1,15 @@
-/*const fetch = require('node-fetch')*/
-require('isomorphic-fetch');
+const request = require('request');
+
 
 export const photoAlbum = (url) => {
-    fetch(url)
-    .then((response) => response.json())
-    .then((data) => {
-        console.log(data.map((photo) => `id[${photo.id}] ${photo.title}`));
-    })
-    .catch((error) => {
-    console.log(error);
-    });
-};   
+    request.get(url, {}, (err, result) => {
+        if (err) {
+            console.log(err);
+            return
+        }
 
+        const bodyPhotos = JSON.parse(result.body);
+        const photoInfo = bodyPhotos.map((photo) => `[id] ${photo.id}, ${photo.title}`);
+        photoInfo.forEach((item) => console.log(item));
+    });
+};
