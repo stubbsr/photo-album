@@ -5,13 +5,12 @@ const sinon = require('sinon');
 const sinonChai = require('sinon-chai')
 const { photoAlbum } = require('../lib/src/photoAlbum')
 
-const BASE_URL = 'https://jsonplaceholder.typicode.com/photos?albumId=3'
-
 
 chai.use(sinonChai);
 chance = new Chance();
 const expect = chai.expect;
 const sandbox = sinon.createSandbox()
+const randURL = chance.url()
 
 describe('photo album request working', () => {
     let randomResponseBody;
@@ -19,7 +18,7 @@ describe('photo album request working', () => {
     beforeEach(() => {
         sandbox.stub(request, 'get');
         sandbox.stub(console, 'log');
-        photoAlbum(BASE_URL);
+        photoAlbum(randURL);
 
         randomResponseBody = chance.n(()=> {
             return {
@@ -46,7 +45,7 @@ describe('photo album returns the correct information', ()=> {
     beforeEach(() => {
         sandbox.stub(request, 'get');
         sandbox.stub(console, 'log');
-        photoAlbum(BASE_URL);
+        photoAlbum(randURL);
         randomResponseBody = chance.n(()=> {
             return {
                 id: chance.natural(),
@@ -73,7 +72,7 @@ describe('photo album returns the correct information', ()=> {
 describe('when photo album encounters error', ()=> {
     beforeEach(() => {
       sandbox.stub(request, 'get');
-      photoAlbum(BASE_URL); 
+      photoAlbum(randURL); 
       errorMsg = "whoopsies"
       request.get.throws(errorMsg)
     });
