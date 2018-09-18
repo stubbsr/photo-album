@@ -1,15 +1,14 @@
 const request = require('request');
 
+const photoAlbum = url => {
+    request.get(url);
+};
 
-export const photoAlbum = (url) => {
-    request.get(url, {}, (err, result) => {
-        if (err) {
-            console.log(err);
-            return
-        }
-
-        const bodyPhotos = JSON.parse(result.body);
-        const photoInfo = bodyPhotos.map((photo) => `[id] ${photo.id}, ${photo.title}`);
-        photoInfo.forEach((item) => console.log(item));
+const parseData = data => {
+    const result = JSON.parse(data);
+    return result.map(({ id, title }) => {
+        return `[${id}] ${title}`;
     });
 };
+
+module.exports = { photoAlbum, parseData };
